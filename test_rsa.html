@@ -1,0 +1,96 @@
+
+<html>
+
+    <head>
+
+        <script language="JavaScript" type="text/javascript" src="jsbn.js"></script>
+        <script language="JavaScript" type="text/javascript" src="random.js"></script>
+        <script language="JavaScript" type="text/javascript" src="hash.js"></script>
+        <script language="JavaScript" type="text/javascript" src="rsa.js"></script>
+        <script language="JavaScript" type="text/javascript" src="aes.js"></script>
+        <script language="JavaScript" type="text/javascript" src="api.js"></script>
+
+        <script>
+
+            function print(string)
+            {
+                document.write(string + "\n\n");
+            }
+
+
+            print("<h1>RSA PEM keys:</h1>");
+            var PassPhrase = "The Moon is a Harsh Mistress.";
+            var Bits = 2048;
+
+            print("Matt's passphrase: " + PassPhrase);
+            print("Bit length: " + Bits);
+
+            var MattsRSAkey = cryptico.generateRSAKey(PassPhrase, Bits);
+            var MattsPublicKeyString = cryptico.publicKeyString(MattsRSAkey);       
+
+            print("Matt's public key string:");
+            print(MattsPublicKeyString);
+
+            var PlainText = "Matt, I need you to help me with my Starcraft strategy.";
+            
+            print("The above private key in PEM format is:");
+            print(add_pem_html(split64_html(base16tobase64(RSAKeyOut(MattsRSAkey).private_key)))); 
+            print("The above public key in PEM format is:");
+            print(add_pem_html(split64_html(base16tobase64(RSAKeyOut(MattsRSAkey).public_key))));
+
+            print("<h1>Encrypt some data with PKCS#1 v1.5:</h1>")
+            plaintext = "Hi this is some text to encrypt!";
+            print("Plaintext: ");
+            print(plaintext);
+
+            print("Ciphertext: ");
+            ciphertext = MattsRSAkey.encrypt(plaintext);
+            ciphertext2 = split64_html(base16tobase64(ciphertext));
+            print(ciphertext2);
+            
+            print("Decrypted text: ");
+            decryptedtext = MattsRSAkey.decrypt(ciphertext);
+            print(decryptedtext);
+
+        </script>
+
+    </head>
+    
+    <body style="font-family: monospace; white-space:pre;">
+
+    </body>
+    
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

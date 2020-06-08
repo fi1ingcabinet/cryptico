@@ -102,6 +102,11 @@ dthvRRcjy+0BRn4tDpC4QJjdJoXCqDmT3NRU="
         print("The signature public key ID:");
         print(cryptico.publicKeyID(DecryptionResult.publicKeyString));        
         
+        print("<h1>RSA PEM keys:</h1>");
+            print("The above private key in PEM format is:");
+            print(add_pem_html(split64_html(base16tobase64(RSAKeyOut(MattsRSAkey).private_key)))); 
+            print("The above public key in PEM format is:");
+            print(add_pem_html(split64_html(base16tobase64(RSAKeyOut(MattsRSAkey).public_key))));
 
             
         </script>
