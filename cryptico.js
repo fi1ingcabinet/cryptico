@@ -2673,7 +2673,6 @@ function RSADoPublic(x)
 
 // Return the PKCS#1 RSA encryption of "text" as an even-length hex string
 
-
 function RSAEncrypt(text)
 {
     var m = pkcs1pad2(text, (this.n.bitLength() + 7) >> 3);
@@ -2684,6 +2683,10 @@ function RSAEncrypt(text)
     if ((h.length & 1) == 0) return h;
     else return "0" + h;
 }
+
+
+
+
 
 // Return the PKCS#1 RSA encryption of "text" as a Base64-encoded string
 //function RSAEncryptB64(text) {
@@ -3582,4 +3585,502 @@ var cryptico = (function() {
 
 
 
+
+// fi1ingcabinet added code to parse RSA iini ASN format, and encrypt/decrypt based on https://tools.ietf.org/html/rfc2313
+
+
+
+//
+// Return RSA public and private key in PEM format. Added by fi1ingcabinet
+//
+function RSAKeyOut(RSAKey){
+    
+    //
+    //VERSION
+    //
+    //02=INTEGER, 01=length is 1 byte, 00 is the version
+    version = "020100"
+    
+    //
+    //n
+    //
+    n = RSAKey.n.toString(16);
+    //add a pad if the first bit is a 1
+    if (['a', 'b', 'c', 'd', 'e', 'f', '9', '8'].indexOf(n.charAt(0)) >= 0) {
+        n2 = "00" +n;
+        }
+    else {
+        n2=n;
+    }
+    n3 = (n2.length)/2;
+    //construct prefix for n
+    prefix_n = prefix_int(n3);
+    //construct prefix + n
+    n_final = prefix_n + n2;
+    
+    //
+    //e
+    //
+    e = RSAKey.e.toString(16);
+    //pad if single value
+    if (e.length % 2 == 1){
+            e = "0"+e;
+        }
+    e2 = (e.length)/2;
+    //construct prefix for p
+    prefix_e = prefix_int(e2);
+    //construct prefix + e
+    e_final = prefix_e + e;
+    
+    //
+    //d
+    //
+    d = RSAKey.d.toString(16);
+    //add pad if first bit 1
+    if (['a', 'b', 'c', 'd', 'e', 'f', '9', '8'].indexOf(d.charAt(0)) >= 0) {
+        d2 = "00" +d;
+        }
+    else {
+        d2=d;
+    }
+    d3 = (d2.length)/2;
+    //construct prefix for p
+    prefix_d = prefix_int(d3);
+    //construct prefix + d
+    d_final = prefix_d + d2;
+    
+    //
+    //p
+    //
+    p = RSAKey.p.toString(16);
+    //add pad if first bit 1
+    if (['a', 'b', 'c', 'd', 'e', 'f', '9', '8'].indexOf(p.charAt(0)) >= 0) {
+        p2 = "00" +p;
+        }
+    else {
+        p2=p;
+    }
+    p3 = (p2.length)/2;
+    //construct prefix for p
+    prefix_p = prefix_int(p3);
+    //construct prefix + p
+    p_final = prefix_p + p2;
+    
+    //
+    //q
+    //
+    q = RSAKey.q.toString(16);
+    //add pad if first bit 1
+    if (['a', 'b', 'c', 'd', 'e', 'f', '9', '8'].indexOf(q.charAt(0)) >= 0) {
+        q2 = "00" +q;
+        }
+    else {
+        q2=q;
+    }
+    q3 = (q2.length)/2;
+    //construct prefix for q
+    prefix_q = prefix_int(q3);
+    //construct prefix + q
+    q_final = prefix_q + q2;
+    
+    //
+    //dmp1
+    //
+    dmp1 = RSAKey.dmp1.toString(16);
+    //add pad if first bit 1
+    if (['a', 'b', 'c', 'd', 'e', 'f', '9', '8'].indexOf(dmp1.charAt(0)) >= 0) {
+        dmp12 = "00" +dmp1;
+        }
+    else {
+        dmp12=dmp1;
+    }
+    dmp13 = (dmp12.length)/2;
+    //construct prefix for dmp1
+    prefix_dmp1 = prefix_int(dmp13);
+    //construct prefix + dmp1
+    dmp1_final = prefix_dmp1 + dmp12;
+    
+    //
+    //dmq1
+    //
+    dmq1 = RSAKey.dmq1.toString(16);
+    //add pad if first bit 1
+    if (['a', 'b', 'c', 'd', 'e', 'f', '9', '8'].indexOf(dmq1.charAt(0)) >= 0) {
+        dmq12 = "00" +dmq1;
+        }
+    else {
+        dmq12=dmq1;
+    }
+    dmq13 = (dmq1.length)/2;
+    //construct prefix for dmq1
+    prefix_dmq1 = prefix_int(dmq13);
+    //construct prefix + dmq1
+    dmq1_final = prefix_dmq1 + dmq1;    
+    
+    //
+    //coeff
+    //
+    coeff = RSAKey.coeff.toString(16);
+    //pad if single value
+    if (coeff.length % 2 == 1){
+            coeff = "0"+coeff;
+        }
+    //add pad if first bit 1
+    if (['a', 'b', 'c', 'd', 'e', 'f', '9', '8'].indexOf(coeff.charAt(0)) >= 0) {
+        coeff2 = "00" +coeff;
+        }
+    else {
+        coeff2=coeff;
+    }
+    coeff3 = (coeff2.length)/2;
+    //construct prefix for coeff
+    prefix_coeff = prefix_int(coeff3);
+    //construct prefix + coeff
+    coeff_final = prefix_coeff + coeff2;
+    
+    //
+    //get the private key
+    //
+    private_key=""
+
+    //total header
+    head_1 = "30";
+    total_content = version + n_final + e_final + d_final + p_final + q_final + dmp1_final + dmq1_final + coeff_final;
+    total_length = (total_content.length)/2;
+    total_length_byte = prefix_int(total_length).substring(2);
+    total_head = head_1 + total_length_byte;
+    private_key = total_head + total_content;
+    
+    
+    //
+    //get the public key
+    //
+    public_key=""
+    //total header
+    head_1 = "30";
+    total_content = n_final + e_final;
+    total_length = (total_content.length)/2;
+    total_length_byte = prefix_int(total_length).substring(2);
+    total_head = head_1 + total_length_byte;
+    public_key_1 = total_head + total_content;
+    head_2 = "00" + public_key_1;
+    head_2_length = (head_2.length)/2;
+    head_3 = "03" + prefix_int(head_2_length).substring(2) + head_2;
+    head_4 = "300d06092a864886f70d0101010500" + head_3;    
+    head_4_length = (head_4.length)/2;
+    head_5 = "30" + prefix_int(head_4_length).substring(2) + head_4;
+    public_key = head_5;
+       
+    return {private_key: private_key, public_key: public_key};
+
+}
+
+
+// function to add ASN.1 prefixes - fi1ingcabinet
+function prefix_int(k){
+    //if length of contents is < 127 the second byte is the length
+    if (k<127){
+        length_byte = k.toString(16)
+        //if it is only one character (i.e. 1-16 in decimal) long, it requires a pad
+        if (length_byte.length % 2 == 1){
+            length_byte = "0"+length_byte;
+        }
+        //add the INTEGER prefix
+        prefix = "02" + length_byte;
+        return prefix
+    }
+    if (127 < k ){
+        //work out how many bytes we need to use
+        if ( (k/256)>=1 ){
+            num_bytes = 2;
+        }
+        else {
+            num_bytes = 1;
+        }
+        //length_byte is the length byte encoded
+        len = 128 + num_bytes;
+        length_byte = len.toString(16);
+        //encode the value of the length
+        hex_bytes = k.toString(16);        
+        if (hex_bytes.length % 2 == 1){
+            hex_bytes = "0"+hex_bytes;
+        }
+        //add the INTEGER prefix
+        prefix = "02" + length_byte + hex_bytes;        
+        return prefix;
+    }
+}
+
+// function to split every 64 characters for log added by fi1ingcabinet from https://stackoverflow.com/questions/4321500/how-to-insert-a-newline-character-after-every-200-characters-with-jquery
+function split64(str) {
+  var result = '';
+  while (str.length > 0) {
+    result += str.substring(0, 64) + '\n';
+    str = str.substring(64);
+  }
+  return result;
+}
+
+// function to split every 64 characters for HTML added by fi1ingcabinet from https://stackoverflow.com/questions/4321500/how-to-insert-a-newline-character-after-every-200-characters-with-jquery
+function split64_html(str) {
+  var result = '';
+  while (str.length > 0) {
+    result += str.substring(0, 64) + '<br>';
+    str = str.substring(64);
+  }
+  return result;
+}
+
+// Function to add prefix and endfix in log added by fi1ingcabinet
+function add_pem(str){
+    
+    pem_key = "-----BEGIN RSA PRIVATE KEY-----" + "\n" + str + "-----END RSA PRIVATE KEY-----";
+    
+    return pem_key;
+}
+
+// Function to add prefix and endfix in HTML added by fi1ingcabinet
+function add_pem_html(str){
+    
+    pem_key = "-----BEGIN RSA PRIVATE KEY-----" + "<br>" + str + "-----END RSA PRIVATE KEY-----";
+    
+    return pem_key;
+}
+
+// copied from elsewhere in cryptico
+function base16tobase64(h) {
+    var i;
+    var base64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    var c;
+    var ret = "";
+    if(h.length % 2 == 1)
+    {
+        h = "0" + h;
+    }
+    for (i = 0; i + 3 <= h.length; i += 3)
+    {
+        c = parseInt(h.substring(i, i + 3), 16);
+        ret += base64Chars.charAt(c >> 6) + base64Chars.charAt(c & 63);
+    }
+    if (i + 1 == h.length)
+    {
+        c = parseInt(h.substring(i, i + 1), 16);
+        ret += base64Chars.charAt(c << 2);
+    }
+    else if (i + 2 == h.length)
+    {
+        c = parseInt(h.substring(i, i + 2), 16);
+        ret += base64Chars.charAt(c >> 2) + base64Chars.charAt((c & 3) << 4);
+    }
+    while ((ret.length & 3) > 0) ret += "=";
+    return ret;
+}
+
+
+// Encrypt/decrupt one single block using RSA as in rfc 2313
+
+// §8 Encryption
+
+/* There are 4 steps:
+
+    1. encryption-block formatting,
+    2. octet-string-to-integer conversion, 
+    3. RSA computation,
+    4. integer-to-octet-string conversion
+*/
+
+
+// §8.1 encryption block formatting 
+
+// Create a class for the block to encrypt
+//TODO:- Put some checks in the class to error if they dont add to right length etc.
+function EncBlock(PS, data) {
+        this.octet1 = "00";
+        this.BT = "02";
+        this.PS = PS;
+        this.octetm1 = "00";
+        this.data = data;
+}
+
+
+// Create an encryption block
+function CreateEnccryptionBlock(plaintext,k) {
+    
+    //k = 128; // we are encrypting single block with key size 1024 so k=128 (8*128 = 1024)
+    //k = k/8;
+    data_16 = ascii_to_hexa(plaintext); // convert the plaintext to hex 
+    
+    //if ((data_16.length/2) >)
+    
+    length_data = (data_16.length)/2; 
+    padding_length = k-length_data-3;
+    //console.log(padding_length);
+    padding_string = "";
+    for (i = 0; i < padding_length; i++) {
+        padding_string = padding_string + "12";
+    } 
+    //console.log(padding_string);
+    
+    newEncryptionBlock = new EncBlock(padding_string, data_16);
+    //console.log(newEncryptionBlock);
+    return newEncryptionBlock;
+    
+}
+
+// §8.2 octet-string-to-integer conversion. Convert encryption block to a large number
+function calculate_x(anyEncryptionBlock,k) {
+    
+    whole_string = anyEncryptionBlock.octet1 + newEncryptionBlock.BT + newEncryptionBlock.PS + newEncryptionBlock.octetm1 + newEncryptionBlock.data;
+    //console.log(whole_string);
+    //console.log(whole_string.length);
+
+    x = bigInt(0);
+    //console.log(x);
+    for (i = 1; i <= k; i++){
+        eb = whole_string.substring(2*(i-1), 2*(i));
+        //console.log(eb);
+        ebn = bigInt(parseInt(whole_string.substring(2*(i-1), 2*(i)),16));
+        //console.log(ebn);
+        
+        //console.log("power of 2: ");
+        pow_of_2 = bigInt(2).pow(8*(k-i));
+        x = x.add(pow_of_2.multiply(ebn));
+        //x = x.add(((2).pow(8*(1024-i))).multiply(ebn));
+        //console.log(x,i);
+        
+    }
+    
+    return x;
+}
+
+
+// §8.3 RSA computation
+function RSAcomputation(x, n, c) {
+    
+    y = bigInt(x,10).modPow(c,bigInt(n,10));
+    
+    //console.log(y);
+    
+    return y.toString();
+}
+
+
+// §8.4 Octet to string conversion. Create the ciphertext as decimal
+function OctetToStringConversion16(y) {
+    
+    z = bigInt(y,10).toString(16);
+    return z;
+    
+}
+
+
+function Encrypt_function(plaintext, RSA_Key) {
+    
+    // §8.1
+    k = RSA_Key.n.toString(16).length/2;
+    console.log(k);
+    plain_block = CreateEnccryptionBlock(plaintext,k);
+    //§8.2
+    x = calculate_x(plain_block,k);
+    // §8.3
+    n = bigInt(RSA_Key.n.toString(16),16);
+    c = bigInt(RSA_Key.e.toString(16),16);
+    y = RSAcomputation(x, n, c);
+    // §8.4
+    z = bigInt(y,10).toString(16);
+    return z;
+    
+}
+
+
+// §9 Decryption
+/* there are 4 steps:
+
+    1. octet-string-to-integer conversion, 
+    2. RSA computation, 
+    3. integer-to-octet-string conversion, 
+    4. encryption-block parsing
+*/
+
+// §9.1 
+
+function OctetToStringConversion10(y) {
+    
+    z = bigInt(y,16).toString(10);
+    return z;
+    
+}
+
+// §9.2 - RSA Computation
+
+function RSAcomputationD(y,d,n) {
+    
+    x = bigInt(y,10).modPow(d,bigInt(n,10));
+    
+    return x.toString();
+    
+}
+
+
+// §9.3 - Octet to string conversion. Create the ciphertext as decimal
+//same as above §8.4
+
+// §9.4 - parse
+function ParseDecr(string){
+    
+    ct = string.split('00')[1];
+    ct = hex2a(ct);
+    console.log(ct);
+    return ct;
+    
+}
+
+function Decrypt_function(ctext, RSA_Key){
+    
+    // §9.1
+    console.log(ctext);
+    big_num = OctetToStringConversion10(ctext);
+    // §9.2
+    d = bigInt(RSA_Key.d.toString(16),16);
+    n = bigInt(RSA_Key.n.toString(16),16);
+    console.log(big_num);
+    //console.log()
+    x = RSAcomputationD(big_num,d,n);
+    console.log(x);
+    // §9.3
+    s = OctetToStringConversion16(x);
+    console.log(s);
+    // §9.4
+    pt = ParseDecr(s);
+    
+    return pt;
+    
+    
+}
+
+
+
+
+
+// Utility functions
+
+//https://www.w3resource.com/javascript-exercises/javascript-string-exercise-27.php
+function ascii_to_hexa(str)
+  {
+	var arr1 = [];
+	for (var n = 0, l = str.length; n < l; n ++) 
+     {
+		var hex = Number(str.charCodeAt(n)).toString(16);
+		arr1.push(hex);
+	 }
+	return arr1.join('');
+   }
+//https://stackoverflow.com/questions/3745666/how-to-convert-from-hex-to-ascii-in-javascript/36928422
+function hex2a(hexx) {
+    var hex = hexx.toString();//force conversion
+    var str = '';
+    for (var i = 0; (i < hex.length && hex.substr(i, 2) !== '00'); i += 2)
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
+}
 

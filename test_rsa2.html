@@ -11,6 +11,7 @@
         <script language="JavaScript" type="text/javascript" src="api.js"></script>
         <script language="JavaScript" type="text/javascript" src="rsa-asn.js"></script>
         <script language="JavaScript" type="text/javascript" src="BigInteger.js"></script>
+        <script language="JavaScript" type="text/javascript" src="rsa-rfc2313.js"></script>
 
         <script>
 
@@ -22,7 +23,7 @@
 
             print("<h1>RSA PEM keys:</h1>");
             var PassPhrase = "The Moon is a Harsh Mistress.";
-            var Bits = 1024;
+            var Bits = 2048;
 
             print("Matt's passphrase: " + PassPhrase);
             print("Bit length: " + Bits);
@@ -58,6 +59,15 @@
             plaintext = "Hi this is some text to encrypt!";
             print("Plaintext: ");
             print(plaintext);
+            
+            print("Ciphertext: ");
+            ctext = Encrypt_function(plaintext, MattsRSAkey)
+            ciphertext = split64_html(base16tobase64(ctext));
+            print(ciphertext);
+            
+            print("Decrypted Ciphertext: ");
+            plaintext_dec = Decrypt_function(ctext,MattsRSAkey);
+            print(plaintext_dec);
             
             
 

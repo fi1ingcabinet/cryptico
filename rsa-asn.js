@@ -1,4 +1,4 @@
-// fi1ingcabinet added code to parse RSA cert, and encrypt/decrypt based on https://tools.ietf.org/html/rfc2313
+// fi1ingcabinet added code to parse RSA iini ASN format, and encrypt/decrypt based on https://tools.ietf.org/html/rfc2313
 
 
 
@@ -29,7 +29,6 @@ function RSAKeyOut(RSAKey){
     prefix_n = prefix_int(n3);
     //construct prefix + n
     n_final = prefix_n + n2;
-    console.log(n_final);
     
     //
     //e
@@ -160,7 +159,7 @@ function RSAKeyOut(RSAKey){
     head_1 = "30";
     total_content = version + n_final + e_final + d_final + p_final + q_final + dmp1_final + dmq1_final + coeff_final;
     total_length = (total_content.length)/2;
-    total_length_byte = prefix_int(total_length).substring(2,);
+    total_length_byte = prefix_int(total_length).substring(2);
     total_head = head_1 + total_length_byte;
     private_key = total_head + total_content;
     
@@ -173,18 +172,18 @@ function RSAKeyOut(RSAKey){
     head_1 = "30";
     total_content = n_final + e_final;
     total_length = (total_content.length)/2;
-    total_length_byte = prefix_int(total_length).substring(2,);
+    total_length_byte = prefix_int(total_length).substring(2);
     total_head = head_1 + total_length_byte;
     public_key_1 = total_head + total_content;
     head_2 = "00" + public_key_1;
     head_2_length = (head_2.length)/2;
-    head_3 = "03" + prefix_int(head_2_length).substring(2,) + head_2;
+    head_3 = "03" + prefix_int(head_2_length).substring(2) + head_2;
     head_4 = "300d06092a864886f70d0101010500" + head_3;    
     head_4_length = (head_4.length)/2;
-    head_5 = "30" + prefix_int(head_4_length).substring(2,) + head_4;
+    head_5 = "30" + prefix_int(head_4_length).substring(2) + head_4;
     public_key = head_5;
        
-    return {private_key, public_key};
+    return {private_key: private_key, public_key: public_key};
 
 }
 
@@ -260,7 +259,7 @@ function add_pem_html(str){
     return pem_key;
 }
 
-// copied from elsewhere 
+// copied from elsewhere in cryptico
 function base16tobase64(h) {
     var i;
     var base64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
