@@ -1,7 +1,7 @@
 Used original cryptico to create a key, then implemented RFC2313 Encrypt and Decrypt functions as a test
 
 Output of test_rsa2.html shows something like this:
-
+```
 RSA PEM keys:
 
 
@@ -97,7 +97,7 @@ Decrypted Ciphertext:
 
 Hi this is some text to encrypt!
 
-
+```
 
     
     
