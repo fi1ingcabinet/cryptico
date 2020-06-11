@@ -9,6 +9,8 @@
         <script language="JavaScript" type="text/javascript" src="rsa.js"></script>
         <script language="JavaScript" type="text/javascript" src="aes.js"></script>
         <script language="JavaScript" type="text/javascript" src="api.js"></script>
+        <script language="JavaScript" type="text/javascript" src="rsa-asn.js"></script>
+        <script language="JavaScript" type="text/javascript" src="BigInteger.js"></script>
 
         <script>
 
@@ -38,7 +40,7 @@
             print("The above public key in PEM format is:");
             print(add_pem_html(split64_html(base16tobase64(RSAKeyOut(MattsRSAkey).public_key))));
 
-            print("<h1>Encrypt some data with PKCS#1 v1.5:</h1>")
+            print("<h1>Encrypt some data with PKCS#1 v1.5 from RFC 2313:</h1>")
             plaintext = "Hi this is some text to encrypt!";
             print("Plaintext: ");
             print(plaintext);
