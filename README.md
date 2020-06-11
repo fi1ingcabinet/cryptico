@@ -1,196 +1,109 @@
-# cryptico
+Used original cryptico to create a key, then implemented RFC2313 Encrypt and Decrypt functions as a test
 
-## Overview
+Output of test_rsa2.html shows something like this:
 
-### Generating an RSA key pair & public key string
+RSA PEM keys:
 
-Sam wants to send Matt an encrypted message.  In order to do this, he first needs Matt's public key string.  A public key pair can be generated for Matt like this:
 
-```javascript
-// The passphrase used to repeatably generate this RSA key.
-var PassPhrase = "The Moon is a Harsh Mistress."; 
+Matt's passphrase: The Moon is a Harsh Mistress.
 
-// The length of the RSA key, in bits.
-var Bits = 1024; 
+Bit length: 2048
 
-var MattsRSAkey = cryptico.generateRSAKey(PassPhrase, Bits);
-```
+Matt's public key string:
 
-Matt's public key string can then be generated like this:
+w5Sjr3UekqqLntnSQtJfx22YEP/DsYt3CFDUPgb9K/ITkte9PAh7DlaApVcOhsC11z1hNQJUBBBElGZA5QYwXamiVtZxPLdXI0dlLh15r4/2ynVN/vJhF9P9UgLxwkLCAQyxJ6Z5JlnrHByrLmdWGMS48nZSes7JoYK19qrYEjEik1SoCCXy8Lxm4P/r/IF9dklo63TkADIPvESrV2uLDeF8/+esboH5Oe4IUMuRwRVYWyhU+txbdhGZzqV+f6mLwnRw3uXprkd7pi3i4jXeh93StiK2Ppn4t/L0FfW55YA0p+kZNibHiDQYtmHBIpAFBxaz8E45yOcmmrpKnSlcKQ==
 
-```javascript
-var MattsPublicKeyString = cryptico.publicKeyString(MattsRSAkey);       
-```
+The above private key in PEM format is:
 
-and looks like this:
-        
-    uXjrkGqe5WuS7zsTg6Z9DuS8cXLFz38ue+xrFzxrcQJCXtVccCoUFP2qH/AQ
-    4qMvxxvqkSYBpRm1R5a4/NdQ5ei8sE8gfZEq7dlcR+gOSv3nnS4/CX1n5Z5m
-    8bvFPF0lSZnYQ23xlyjXTaNacmV0IuZbqWd4j9LfdAKq5dvDaoE=
+-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAw5Sjr3UekqqLntnSQtJfx22YEP/DsYt3CFDUPgb9K/ITkte9
+PAh7DlaApVcOhsC11z1hNQJUBBBElGZA5QYwXamiVtZxPLdXI0dlLh15r4/2ynVN
+/vJhF9P9UgLxwkLCAQyxJ6Z5JlnrHByrLmdWGMS48nZSes7JoYK19qrYEjEik1So
+CCXy8Lxm4P/r/IF9dklo63TkADIPvESrV2uLDeF8/+esboH5Oe4IUMuRwRVYWyhU
++txbdhGZzqV+f6mLwnRw3uXprkd7pi3i4jXeh93StiK2Ppn4t/L0FfW55YA0p+kZ
+NibHiDQYtmHBIpAFBxaz8E45yOcmmrpKnSlcKQIBAwKCAQEAgmMXyk4UYccHvzvh
+geGVL55lYKqCdlz6BYs4KVn+HUwNDI/TfVr8tDmrGOS0WdXOj35AzgGNWArYYu7V
+7gQgPnEW5I72KHo6F4TuHr5RH7VPMaOJVKGWD+Ko4VdL1tcsALMgxRmmGZFHaBMc
+yZo5Zdh7TE7hpzSGa6x5TxyQDB+V2vRQNZAMKYYbcdSyyMGrFjkoHZHlHWJkP9uT
+dHRNPrBF6guSBRveMQC1TZJY/Z/tuy6SNZj5VkCUKb81V+0v/u07XLOAAXU7vPzu
+pwUm9TV5nqgnoLa4FWSq87izeUjvKaE6hrAEWTdcu/8Z18MMvngNjUXbqCqx7JbG
+/67TqwKBgQD3eQwDGcUfeoApfRv3V9TTK9VPbsAp5hT46X00ExpS2eztZXd9rw0o
+60xgX5SdhhyIbfS/cVTnK22SPlMP6gOffLzgRdg4G9PX5JKUFIFGgPPY+f0sC84V
+nZLoqNdhZmrHsHlVVH2SlcoUO2poHPfe8u8EN2/njdmP0lTcqJRKkQKBgQDKUdos
+ngjBN/MUOSTod4opqR5dUFnibgmAcv4aFaLEVewmu17Tt8sDBSCX/NtuvojrVG26
+OSH+SUMpUbOekcIkR1O3jgBxkEPKJh/o0yzdlxnDTilOwbnO+kkK/4lLSSgGOP3s
+F6EubJb5YPiyQfOS9nObZPWIvs2L5YNDdQ7UGQKBgQCk+11XZoNqUarGU2f6Oo3i
+HTjfnyrGmWNQm6jNYhGMkUieQ6T+dLNwnN2VlQ2+WWha8/h/oONEx55hfuIKnAJq
+UyiVg+V6vTflQwxiuFYvAKKQpqjIB965E7dFxeTrmZyFIFDjjakMY9wNfPGavfqU
+ofStekqaXpEKjDiTGw2HCwKBgIbhPB2+sIDP92LQw0WlBsZwvujgO+xJW6r3VBFj
+wdg5SBnSPzfP3KyuFbqokknUW0eNnnwmFqmGLMY2d78L1sLaN8+0AEu1gobEFUXi
+HekPZoI0G4nWe99RhgdVBjIwxVl7U/K6a3RIZKZApcwr97dO97zt+QXUiQfuV4JO
+CeK7AoGAPh9dcu2KIBnntxNXAG1b5ikGa0FZR021u2PDImjnuLtCdJ0cmVxuuijf
+76mGTfHlJHYeBFDZddo/gHsyXAeEBb30K95eX2Pzm7bHGiuJ+htfZnb1A4NHvtui
+weZU/x9ZZUDhzgJbblrBGOHwM0S5k7Gz689m+EwY4aFifjhlVpU=
+-----END RSA PRIVATE KEY-----
 
-### Encrypting a message
+The above public key in PEM format is:
 
-Matt emails Sam his public key string.  Now Sam can encrypt a message for Matt:
+-----BEGIN RSA PRIVATE KEY-----
+MIIBIDANBgkqhkiG9w0BAQEFAAOCAQ0AMIIBCAKCAQEAw5Sjr3UekqqLntnSQtJf
+x22YEP/DsYt3CFDUPgb9K/ITkte9PAh7DlaApVcOhsC11z1hNQJUBBBElGZA5QYw
+XamiVtZxPLdXI0dlLh15r4/2ynVN/vJhF9P9UgLxwkLCAQyxJ6Z5JlnrHByrLmdW
+GMS48nZSes7JoYK19qrYEjEik1SoCCXy8Lxm4P/r/IF9dklo63TkADIPvESrV2uL
+DeF8/+esboH5Oe4IUMuRwRVYWyhU+txbdhGZzqV+f6mLwnRw3uXprkd7pi3i4jXe
+h93StiK2Ppn4t/L0FfW55YA0p+kZNibHiDQYtmHBIpAFBxaz8E45yOcmmrpKnSlc
+KQIBAw==
+-----END RSA PRIVATE KEY-----
 
-```javascript
-var PlainText = "Matt, I need you to help me with my Starcraft strategy.";
+Encrypt some data with PKCS#1 v1.5 usnig cryptico:
 
-var EncryptionResult = cryptico.encrypt(PlainText, MattsPublicKeyString);
-```
 
-`EncryptionResult.cipher` is the encrypted message, and looks like this:
+Plaintext: 
 
-    OOHoAlfm6Viyl7afkUVRoYQv24AfdLnxaay5GjcqpxvEK+dph5kUFZEZIFKo
-    vVoHoZbtUMekSbMqHQr3wNNpvcNWr4E3DgNLfMZQA1pCAUVmPjNM1ZQmrkKY
-    HPKvkhmVKaBiYAJGoO/YiFfKnaylLpKOYJZctkZc4wflZcEEqqg=?cJPt71I
-    HcU5c2LgqGXQKcx2BaAbm25Q2Ku94c933LX5MObL9qbTJEVEv29U0C3gIqcd
-    qwMV6nl33GtHjyRdHx5fZcon21glUKIbE9P71NwQ=
+Hi this is some text to encrypt!
 
-### Decrypting a message
+Ciphertext: 
+
+qE9TcLlThuY2KAgwaFcEFAoVz9vN49cRbFK7hXkLJbCztD39FTcbgYUCcCiVKhHZ
+0bL+tXo8p+PCjgi5ns3a6O5LoyLhN/k5yFBHDUKdu/VDqEPj721KO6tTmX9u3nxz
+/BE6Wd4/FdqNP+YoHgOdwIrMSNC9waeUeVTsvTD3EgygZyHyq2unvmOGjb8BwgKc
+yjMApmR/QA449JUSX6ZmlVXHcwznnDKCxbryn8xvjDf0RlFjY2LcZIqX+uFhQJJI
+B8xqbjwHpJXD4rMAFeKfxPE5ghpgd5QM2cTbuFXixnXnjIF2ATqQbW1FxxpAMmiM
+/ZmsuNjW3a8cq3sSpKrL7g==
+
+
+Decrypted text: 
+
+Hi this is some text to encrypt!
+
+Encrypt some data with PKCS#1 v1.5 from RFC 2313:
+
+
+Plaintext: 
+
+Hi this is some text to encrypt!
+
+Ciphertext: 
+
+U/hAz01Scg+YF+GHED0O+j4yo5YiXVohsXRE8a1Pk39zZzD3fi4QZwq9MWXNkGKd
+SSM/bkAv5ku/G4ok0ZmLzUGkUtlpu+jRPI7cHc59GpUc2DaoJvhDbYKVPWgOJ3R3
+6CiJc6m3A/5+4LQ4RWNmEEJ+9y80feLUotNt404NWLhv21iqXl26H5U7Q8OBGpXO
+8ksf6GGou4vNsAI1/asBxiWbCJAPeNssxQzGrL6S+S5TH5m1zibh2ji2HKAQ0FYX
+JEIubMzh4aBp/vpOjFyrtGUxcU5FO3jbaA5hbeICb4flf//48v4cdFkkxJE4EuD1
+tfgu7SH+wJlC87pyIadzyg==
+
+
+Decrypted Ciphertext: 
+
+Hi this is some text to encrypt!
+
+
+
     
-Sam sends his encrypted message to Matt. The message can be decrypted like this:
     
-```javascript
-var CipherText = "OOHoAlfm6Viyl7afkUVRoYQv24AfdLnxaay5GjcqpxvEK+dph5kUFZEZIFKo \
-                  vVoHoZbtUMekSbMqHQr3wNNpvcNWr4E3DgNLfMZQA1pCAUVmPjNM1ZQmrkKY \
-                  HPKvkhmVKaBiYAJGoO/YiFfKnaylLpKOYJZctkZc4wflZcEEqqg=?cJPt71I \
-                  HcU5c2LgqGXQKcx2BaAbm25Q2Ku94c933LX5MObL9qbTJEVEv29U0C3gIqcd \
-                  qwMV6nl33GtHjyRdHx5fZcon21glUKIbE9P71NwQ=";
-
-var DecryptionResult = cryptico.decrypt(CipherText, MattsRSAkey);
-```
-
-The decrypted message is in `DecryptionResult.plaintext`.
-
-### Signatures & Public Key IDs
     
-If Sam's RSA key is provided to the `cryptico.encrypt` function, the message will be signed by him:
+
     
-```javascript
-var PassPhrase = "There Ain't No Such Thing As A Free Lunch."; 
-
-var SamsRSAkey = cryptico.generateRSAKey(PassPhrase, 1024);
-
-var PlainText = "Matt, I need you to help me with my Starcraft strategy.";
-
-var EncryptionResult = cryptico.encrypt(PlainText, MattsPublicKeyString, SamsRSAkey);
-```
-
-The public key associated with the signature can be used by Matt to make sure that it was sent by Sam, but there are a lot of characters to examine in the key - it would be easy to make a mistake.  Instead, the public key string associated with the signature can be processed like this:
     
-```javascript
-var PublicKeyID = cryptico.publicKeyID(EncryptionResult.publickey);
-```
 
-and `PublicKeyID` would look something like this:
-    
-    d0bffb0c422dfa3d3d8502040b915248
 
-This shorter key ID can be used to uniquely identify Sam's public key more easily if it must be done manually.  Moreover, this key ID can be used by Sam or Matt to make sure they have typed their own passphrases correctly.
-    
-# API Documentation
-
-## RSA Keys
-
-    cryptico.generateRSAKey(passphrase, bitlength)
-
-Generates an RSAKey object from a password and bitlength.
-
-`passphrase`: string from which the RSA key is generated.
-
-`bitlength`: integer, length of the RSA key (512, 1024, 2048, 4096, 8192).
-
-Returns an `RSAKey` object.
-
-    cryptico.publicKeyString(rsakey)
-
-Returns the public key portion of an RSAKey object in ascii-armored
-string form, which allows it to be used on websites and in text files
-without fear of corrupting the public key.
-
-`rsakey`: An `RSAKey` object.
-
-Returns an ascii-armored public key string.
-    
-    cryptico.publicKeyID(publicKeyString)
-
-Returns an MD5 sum of a `publicKeyString` for easier identification.
-
-`publicKeyString`: a public key in ascii-armored string form, as generated by the `cryptico.publicKeyString` function.
-
-Returns an MD5 sum of the public key string.   
-
-## Encryption
-
-    cryptico.encrypt(plaintext, publicKeyString, signingKey)
-
-Encrypts a string with the provided public key. Optionally signs the encrypted string with an RSAKey object.
-
-`plaintext`: the string to be encrypted.
-    
-`publicKeyString`: The public key string of the recipient.
-    
-`signingKey`: the `RSAKey` object of the sender.
-    
-Returns: `status`, `cipher`
-
-`status`: "success" if encryption succeeded, "failure" if it failed.
-    
-`cipher`: An ascii-armored encrypted message string, optionally signed.
-
-## Decryption
-
-    cryptico.decrypt(ciphertext, key)
-
-Decrypts an encrypted message with the recipient's RSAKey and verifies the signature, if any.
-
-`ciphertext`: The encrypted message to be decrypted.
-    
-`key`: The `RSAKey` object of the recipient.
-
-Returns: `status`, `plaintext`, `signature`, `publicKeyString`
-
-`status`: "success" if decryption succeeded, "failure" if it failed. **Does not reflect the status of the signature verification.**
-
-`plaintext`: The decrypted message.
-    
-`signature`: "unsigned" if there was no signature, "verified" if it is signed and valid, **"forged" if the signature fails verification**.
-
-`publicKeyString`: public key string of the signature (presumably the sender). **Returned even if the signature appears to be forged**.
-
-# Encryption Technical Documentation
-
-## Key generation
-
-A hash is generated of the user's passphrase using the SHA256 algorithm found at <a href="http://www.webtoolkit.info/javascript-sha256.html">webtoolkit.info</a>. This hash is used to seed <a href="http://davidbau.com/archives/2010/01/30/random_seeds_coded_hints_and_quintillions.html">David Bau's seedable random number generator</a>. A (seeded) random RSA key is generated with <a href="http://www-cs-students.stanford.edu/~tjw/jsbn/">Tom Wu's RSA key generator</a> with 3 as a hard-coded public exponent.
-
-## Encryption
-
-A 32-byte AES key is generated with <a href="http://www-cs-students.stanford.edu/~tjw/jsbn/">Tom Wu's random number generator</a>. The plaintext message is converted to a byte string and padded with zeros to 16 bytes round.  An initialization vector is created with <a href="http://www-cs-students.stanford.edu/~tjw/jsbn/">Tom Wu's random number generator</a>. The AES key is expanded and the plaintext message is encrypted with the Cipher-block chaining mode using the <a href="http://point-at-infinity.org/jsaes/">jsaes</a> library. The AES key is encrypted with the recipient's public key using <a href="http://www-cs-students.stanford.edu/~tjw/jsbn/">Tom Wu's RSA encryption library</a>.
-
-The encrypted AES key and encrypted message are ascii-armored and concatenated with the "?" character as a delimiter.  As an example, here is the result of the phrase "Matt, I need you to help me with my Starcraft strategy." encrypted with
-the passphrase "The Moon is a Harsh Mistress." used to generate the 1024-bit public key:
-
-    EuvU2Ov3gpgM9B1I3VzEgxaAVO/Iy85NARUFZb/h+HrOP72degP0L1fWiHO3
-    RDm5+kWRaV6oZsn91juJ0L+hrP6BDwlIza9x9DBMEsg3PnOHJENG63RXbu0q
-    PZd2xDJY70i44sufNqHZ0mui9OdNIeE8FvzEOzMtFGCqDx1Z48s=?K3lOtQC
-    2w+emoR4W3yvAaslSzTj/ZZIkOu3MNTW8y/OX0OxTKfpsaI6zX6XYrM0MpPr
-    uw7on1N6VUMpNQO8KUVYl4clquaibKs0marXPFH4=
-
-## Signing
-
-When signing the encrypted message, two more pieces of information are attached to the cipher text.  The first is the ascii-armored RSA public key of the sender. The second piece of information concatenated with the cipher text is
-the signature itself, which is generated with the <a href="http://www9.atwiki.jp/kurushima/pub/jsrsa/">rsa-sign extension by Kenji Urushima</a>, along with the SHA256 algorithm found at <a href="http://www.webtoolkit.info/javascript-sha256.html">webtoolkit.info</a>. These two pieces of code are also used when verifying the signature.
-
-The signature is concatenated with the public key with the string
-`::52cee64bb3a38f6403386519a39ac91c::` used as the delimiter between the
-plaintext, the public key of the sender, and the signature:
-
-    plaintext
-    ::52cee64bb3a38f6403386519a39ac91c::
-    public key of sender
-    ::52cee64bb3a38f6403386519a39ac91c::
-    signature
-
-This concatenated block is then encrypted with CBC AES and concatenated with the
-encrypted AES key to form the complete encrypted message.
