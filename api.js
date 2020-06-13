@@ -172,6 +172,7 @@ var cryptico = (function() {
         var r = new SecureRandom();
         var IV = new Array(16);
         r.nextBytes(IV);
+        console.log(IV);
         return IV;
     }
     
@@ -264,6 +265,15 @@ var cryptico = (function() {
         Math.seedrandom(sha256.hex(passphrase));
         var rsa = new RSAKey();
         rsa.generate(bitlength, "03");
+        return rsa;
+    }
+    // Generates an RSA key from a input.
+    my.generateRSAKey2 = function(n,e,d,p,q,d1,d2,c, bitlength)
+    {
+        //Math.seedrandom(sha256.hex(passphrase));
+        var rsa = new RSAKey();
+        //rsa.generate(bitlength, "03");
+        rsa.setPrivateEx(n,e,d,p,q,d1,d2,c);
         return rsa;
     }
 

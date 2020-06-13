@@ -3355,6 +3355,7 @@ var cryptico = (function() {
         var r = new SecureRandom();
         var IV = new Array(16);
         r.nextBytes(IV);
+        console.log(IV);
         return IV;
     }
     
@@ -3447,6 +3448,15 @@ var cryptico = (function() {
         Math.seedrandom(sha256.hex(passphrase));
         var rsa = new RSAKey();
         rsa.generate(bitlength, "03");
+        return rsa;
+    }
+    // Generates an RSA key from a input.
+    my.generateRSAKey2 = function(n,e,d,p,q,d1,d2,c, bitlength)
+    {
+        //Math.seedrandom(sha256.hex(passphrase));
+        var rsa = new RSAKey();
+        //rsa.generate(bitlength, "03");
+        rsa.setPrivateEx(n,e,d,p,q,d1,d2,c);
         return rsa;
     }
 
@@ -3978,7 +3988,7 @@ function Encrypt_function(plaintext, RSA_Key) {
     
     // §8.1
     k = RSA_Key.n.toString(16).length/2;
-    console.log(k);
+    //console.log(k);
     plain_block = CreateEnccryptionBlock(plaintext,k);
     //§8.2
     x = calculate_x(plain_block,k);
@@ -4029,31 +4039,33 @@ function RSAcomputationD(y,d,n) {
 function ParseDecr(string){
     
     ct = string.split('00')[1];
+    key = ct;
     ct = hex2a(ct);
-    console.log(ct);
-    return ct;
+    //console.log(ct);
+    return {ct: ct, key: key};
     
 }
 
 function Decrypt_function(ctext, RSA_Key){
     
     // §9.1
-    console.log(ctext);
+    //console.log(ctext);
     big_num = OctetToStringConversion10(ctext);
     // §9.2
     d = bigInt(RSA_Key.d.toString(16),16);
     n = bigInt(RSA_Key.n.toString(16),16);
-    console.log(big_num);
+    //console.log(big_num);
     //console.log()
     x = RSAcomputationD(big_num,d,n);
-    console.log(x);
+    //console.log(x);
     // §9.3
     s = OctetToStringConversion16(x);
-    console.log(s);
+    //console.log(s);
     // §9.4
-    pt = ParseDecr(s);
+    pt = ParseDecr(s).ct;
+    key = ParseDecr(s).key;
     
-    return pt;
+    return {pt: pt, key: key};
     
     
 }
@@ -4083,4 +4095,44 @@ function hex2a(hexx) {
         str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
     return str;
 }
-
+//from api.js
+function base64tobase16(s) {
+        var ret = "";
+        var i;
+        var k = 0;
+        var slop;
+        var base64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+        for (i = 0; i < s.length; ++i)
+        {
+            if (s.charAt(i) == "=") break;
+            v = base64Chars.indexOf(s.charAt(i));
+            if (v < 0) continue;
+            if (k == 0)
+            {
+                ret += int2char(v >> 2);
+                slop = v & 3;
+                k = 1;
+            }
+            else if (k == 1)
+            {
+                ret += int2char((slop << 2) | (v >> 4));
+                slop = v & 0xf;
+                k = 2;
+            }
+            else if (k == 2)
+            {
+                ret += int2char(slop);
+                ret += int2char(v >> 2);
+                slop = v & 3;
+                k = 3;
+            }
+            else
+            {
+                ret += int2char((slop << 2) | (v >> 4));
+                ret += int2char(v & 0xf);
+                k = 0;
+            }
+        }
+        if (k == 1) ret += int2char(slop << 2);
+        return ret;
+    }
