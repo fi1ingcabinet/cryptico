@@ -1,8 +1,6 @@
 
 <html>
-
     <head>
-
         <script language="JavaScript" type="text/javascript" src="jsbn.js"></script>
         <script language="JavaScript" type="text/javascript" src="random.js"></script>
         <script language="JavaScript" type="text/javascript" src="hash.js"></script>
@@ -12,15 +10,11 @@
         <script language="JavaScript" type="text/javascript" src="rsa-asn.js"></script>
         <script language="JavaScript" type="text/javascript" src="BigInteger.js"></script>
         <script language="JavaScript" type="text/javascript" src="rsa-rfc2313.js"></script>
-
         <script>
-
             function print(string)
             {
                 document.write(string + "\n\n");
             }
-
-
             print("<h1>RSA PEM keys:</h1>");
             var PassPhrase = "The Moon is a Harsh Mistress.";
             var Bits = 2048;
@@ -67,49 +61,10 @@
             
             print("Decrypted Ciphertext: ");
             plaintext_dec = Decrypt_function(ctext,MattsRSAkey);
-            print(plaintext_dec);
+            print(plaintext_dec.pt);
             
-            
-
         </script>
-
     </head>
-    
     <body style="font-family: monospace; white-space:pre;">
-
     </body>
-    
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

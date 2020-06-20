@@ -152,7 +152,6 @@ function ParseDecr(string){
     ct = string.split('00')[1];
     key = ct;
     ct = hex2a(ct);
-    //console.log("CT:");
     //console.log(ct);
     return {ct: ct, key: key};
     
@@ -184,6 +183,31 @@ function Decrypt_function(ctext, RSA_Key){
     
 }
 
+function Decrypt_function_book(ctext, d,n){
+    
+    // §9.1
+    //console.log(ctext);
+    big_num = OctetToStringConversion10(ctext);
+    // §9.2
+    d = bigInt(d.toString(16),16);
+    n = bigInt(n.toString(16),16);
+    console.log("d,n: ")
+    console.log(RSA_Key.d.toString(16));
+    console.log(RSA_Key.n.toString(16));
+    //console.log()
+    x = RSAcomputationD(big_num,d,n);
+    //console.log(x);
+    // §9.3
+    s = OctetToStringConversion16(x);
+    //console.log(s);
+    // §9.4
+    pt = ParseDecr(s).ct;
+    key = ParseDecr(s).key;
+    
+    return {pt: pt, key: key};
+    
+    
+}
 
 
 
